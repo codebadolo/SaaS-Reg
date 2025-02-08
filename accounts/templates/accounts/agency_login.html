@@ -1,0 +1,19 @@
+{# accounts/templates/accounts/agency_detail.html #}
+{% extends 'accounts/base.html' %}
+{% block content %}
+<div class="container">
+  <h1>Agency Login</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Login</button>
+    {% if form.errors %}
+      <div class="alert alert-danger">
+        {% for error in form.non_field_errors %}
+          {{ error }}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </form>
+</div>
+{% endblock %}

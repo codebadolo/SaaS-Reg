@@ -1,0 +1,17 @@
+{# accounts/templates/accounts/agent_register.html #}
+{% extends 'accounts/base.html' %}
+
+
+{% block content %}
+<div class="container">
+  <h1>Register New Agent for {{ agency.agency_name }}</h1>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Register Agent</button>
+  </form>
+
+  <a href="{% url 'accounts:agency_detail' pk=agency.pk %}" class="btn btn-secondary">Back to Agency Details</a>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{# accounts/templates/accounts/agent_list.html #}
+{% extends 'accounts/base.html' %}
+
+
+{% block content %}
+<div class="container">
+  <h1>Agents for {{ agency.agency_name }}</h1>
+
+  {% if agents %}
+  <ul>
+    {% for agent in agents %}
+    <li>{{ agent.username }} - {{ agent.email }}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No agents found for this agency.</p>
+  {% endif %}
+
+  <a href="{% url 'accounts:agency_detail' pk=agency.pk %}" class="btn btn-secondary">Back to Agency Details</a>
+</div>
+{% endblock %}

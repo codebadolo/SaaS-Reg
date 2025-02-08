@@ -1,0 +1,37 @@
+{# accounts/templates/accounts/agency_detail.html #}
+{% extends 'accounts/base.html' %}
+
+
+
+{% block content %}
+<div class="container">
+  <h1>Agency Details</h1>
+
+  <h2>Agency Information</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ update_form.as_p }}
+    <button type="submit" class="btn btn-primary">Update Agency</button>
+  </form>
+
+  <h2>KYC Documents</h2>
+  <ul>
+    {% for doc in kyc_documents %}
+    <li>
+      {{ doc.document_name }} - <a href="{{ doc.document_file.url }}">Download</a>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <h3>Upload New KYC Document</h3>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ kyc_form.as_p }}
+    <button type="submit" class="btn btn-primary">Upload KYC Document</button>
+  </form>
+
+  <h2>Manage Agents</h2>
+  <a href="{% url 'accounts:agent_list' agency.pk %}" class="btn btn-secondary">View Agents</a>
+  <a href="{% url 'accounts:agent_register' agency.pk %}" class="btn btn-secondary">Register New Agent</a>
+</div>
+{% endblock %}

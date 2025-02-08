@@ -1,0 +1,20 @@
+{# accounts/templates/accounts/my_template.html #}
+{# accounts/templates/accounts/home.html #}
+{% extends 'accounts/base.html' %}
+
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    <div class="jumbotron">
+        <h1 class="display-4">Welcome to Our Mobile Money Management SaaS!</h1>
+        <p class="lead">Streamline your agency's transactions and manage your agents effectively.</p>
+        <hr class="my-4">
+        <p>Our platform provides tools to track transactions, manage agents, and generate reports.</p>
+        <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
+    </div>
+
+    <h2>Agency Registration</h2>
+    <p>Register your agency to get started.</p>
+    <a class="btn btn-success" href="{% url 'accounts:agency_register' %}">Register Agency</a>
+{% endblock %}

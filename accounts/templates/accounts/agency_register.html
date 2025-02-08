@@ -1,0 +1,56 @@
+{# accounts/templates/accounts/agency_detail.html #}
+{% extends 'accounts/base.html' %}
+ {# Assuming you have a base template #}
+
+{% block title %}Agency Details{% endblock %}
+
+{% block content %}
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-8 offset-md-2">
+        <div class="card shadow">
+          <div class="card-body">
+            <h1 class="card-title text-center">Agency Details</h1>
+            <h2 class="card-subtitle mb-2 text-muted">{{ agency.agency_name }}</h2>
+            <p class="card-text"><strong>Contact Info:</strong> {{ agency.contact_info }}</p>
+
+            {% if agency.logo %}
+              <div class="text-center">
+                <img src="{{ agency.logo.url }}" alt="Agency Logo" class="img-fluid rounded" style="max-width: 200px;">
+              </div>
+            {% endif %}
+
+            <hr>
+
+            <h3 class="mt-4">KYC Documents</h3>
+            {% if kyc_documents %}
+              <ul class="list-group">
+                {% for doc in kyc_documents %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ doc.document_name }}
+                    <a href="{{ doc.document_file.url }}" class="btn btn-sm btn-outline-primary">Download</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="text-muted">No KYC documents uploaded yet.</p>
+            {% endif %}
+
+            <hr>
+
+            <h3 class="mt-4">Upload New KYC Document</h3>
+            <form method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="form-group">
+                {{ form.as_p }}
+              </div>
+              <button type="submit" class="btn btn-primary">Upload KYC Document</button>
+            </form>
+
+            {# <a href="{% url 'accounts:agent_list' pk=agency.pk %}" class="btn btn-secondary">Manage Agents</a> #}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

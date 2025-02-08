@@ -1,0 +1,31 @@
+{# accounts/templates/accounts/transaction_list.html #}
+{% extends 'accounts/base.html' %}
+
+
+{% block title %}Transaction List{% endblock %}
+
+{% block content %}
+  <h1>Transaction List</h1>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Agent</th>
+        <th>Provider</th>
+        <th>Amount</th>
+        <th>Type</th>
+        <th>Date/Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for transaction in transactions %}
+        <tr>
+          <td>{{ transaction.agent.username }}</td>
+          <td>{{ transaction.provider.provider_name }}</td>
+          <td>{{ transaction.montant }}</td>
+          <td>{{ transaction.type }}</td>
+          <td>{{ transaction.date_heure }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
