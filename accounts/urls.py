@@ -28,8 +28,17 @@ urlpatterns = [
         path('agency/<int:pk>/', views.agency_detail, name='agency_detail'),
             path('agency/<int:pk>/agents/', views.agent_list, name='agent_list'),
     path('agency/<int:pk>/agents/register/', views.agent_register, name='agent_register'),
-    # Other URL patterns
+      path('agency/<int:pk>/info/', views.agency_info, name='agency_info'),
+      path('agency/<int:pk>/kyc/', views.agency_kyc, name='agency_kyc'),  
+         path('agency/<int:pk>/agents/', views.agent_list, name='agent_list'),
+    path('agency/<int:pk>/agents/register/', views.agent_register, name='agent_register'),
+      path('agency/<int:agency_pk>/agents/<int:agent_pk>/', views.agent_detail, name='agent_detail'),
+         path('agent/login/', views.agent_login, name='agent_login'),
+    path('agent/dashboard/', views.agent_dashboard, name='agent_dashboard'),
+        path('transaction/register/', views.transaction_register, name='transaction_register'),# New URL pattern
 ]
+    # Other URL patterns
+    # 
 
     # ... other URL patterns ...
 

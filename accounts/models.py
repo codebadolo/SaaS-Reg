@@ -30,7 +30,7 @@ class KYCDocument(models.Model):
 class Agent(AbstractUser):
     agency = models.ForeignKey('Agency',  on_delete=models.CASCADE   , null = True, blank = True) # Set nullable and blank
     is_manager = models.BooleanField(default=False)
-    account = models.ForeignKey(get_user_model(), on_delete=models.CASCADE) 
+    account = models.OneToOneField(get_user_model(), on_delete=models.CASCADE , primary_key=True) 
     groups = models.ManyToManyField(
         Group,
         verbose_name=('groups'),

@@ -1,3 +1,4 @@
+{# accounts/templates/accounts/agency_info.html #}
 {% extends 'accounts/base.html' %}
 {% load static %}
 
@@ -38,28 +39,23 @@
         </ul>
       </div>
     </nav>
+
+    {# Main Content - Agency Information Form #}
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-<li class="nav-item">
-  <a class="nav-link" href="{% url 'accounts:agent_register' agency.pk %}">Register Agent</a>
-</li>
-</div>
-<div class="container">
-  <h1>Agents for {{ agency.agency_name }}</h1>
+        <h1 class="h2">Agency Information</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+        </div>
+      </div>
 
+      <h2>Update Agency Information</h2>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ update_form.as_p }}
+        <button type="submit" class="btn btn-primary">Update Agency</button>
+      </form>
 
-  {% if agents %}
-  <ul>
-      {% for agent in agents %}
-          <li>
-              {{ agent.account.username }} - {{ agent.account.email }} -
-              <a href="{% url 'accounts:agent_detail' agency_pk=agency.pk agent_pk=agent.pk %}">View Details</a>
-          </li>
-      {% endfor %}
-  </ul>
-{% else %}
-  <p>No agents found for this agency.</p>
-{% endif %}
-  <a href="{% url 'accounts:agency_detail' pk=agency.pk %}" class="btn btn-secondary">Back to Agency Details</a>
+    </main>
+  </div>
 </div>
 {% endblock %}

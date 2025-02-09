@@ -1,55 +1,68 @@
 {# accounts/templates/accounts/base.html #}
-{% comment %}
-   {% load bootstrap5 %}
-{% endcomment %}
+{% load static %}
 
 {% load django_bootstrap5 %}
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}My Mobile Money App{% endblock %}</title>
-    {% bootstrap_css %}
-    {% bootstrap_javascript %}
+    <link rel="stylesheet" href="https://bootswatch.com/5/lux/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body>
-    <div class="container">
-      <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{% url 'accounts:home' %}">My App</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav">
-            {% if user.is_authenticated %}
-              <li class="nav-item">
-                <a class="nav-link" href="#">Welcome, {{ user.username }}</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'accounts:agency_register' %}">Register Agency</a>
-              </li>
-             {% comment %}
-                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'accounts:transaction_list' %}">View Transactions</a>
-                </li>
-              {% endcomment %}
-              <li class="nav-item">
-                <a class="nav-link" href="#">Logout</a>
-              </li>
-            {% else %}
-              <li class="nav-item">
-                <a class="nav-link" href="#">Login</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">Register</a>
-              </li>
-            {% endif %}
-          </ul>
-        </div>
-      </nav>
+<body class="d-flex flex-column h-100">
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="{% url 'accounts:home' %}">
+                    <img src="{% static 'images/logo.png' %}" alt="Logo" height="30" class="d-inline-block align-top">
+                    My App
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ml-auto">
+                        {% if user.is_authenticated %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">
+                                    <i class="fas fa-user"></i> Welcome, {{ user.username }}
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'accounts:agency_register' %}">Register Agency</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Logout</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Register</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
 
-        {% block content %}{% endblock %}
-    </div>
+    <main class="flex-shrink-0">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">&copy; 2025 My Mobile Money App</span>
+        </div>
+    </footer>
+
+    {% bootstrap_javascript %}
 </body>
 </html>

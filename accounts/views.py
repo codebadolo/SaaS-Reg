@@ -14,7 +14,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .forms import AgencyCreationForm, AgencyLoginForm , AgencyUpdateForm
+from .forms import ( 
+AgencyCreationForm, AgencyLoginForm , AgencyUpdateForm , AgentLoginForm ,TransactionRegistrationForm
+)
 from .models import Agency
 from django.core.mail import send_mail
 import random
@@ -67,6 +69,24 @@ def agency_login(request):
 def agency_detail(request, pk):
     agency = get_object_or_404(Agency, pk=pk)
 
+    # Authorization Check
+    if request.user != agency.owner:
+        return render(request, 'accounts/unauthorized.html', {'message': 'You are not authorized to view this agency.'})
+
+    # Calculate Statistics (Replace with your actual logic)
+    total_agents = agency.agent_set.count()  # Assuming you have a reverse relation from Agency to Agent
+    total_kyc_documents = agency.kyc_documents.count()  # Use the related_name 'kyc_documents'
+
+    context = {
+        'agency': agency,
+        'total_agents': total_agents,
+        'total_kyc_documents': total_kyc_documents,
+    }
+    return render(request, 'accounts/agency_detail.html', context)
+'''@login_required
+def agency_detail(request, pk):
+    agency = get_object_or_404(Agency, pk=pk)
+
     # Authorization Check: Only the owner can view the agency detail page
     if request.user != agency.owner:
         return render(request, 'accounts/unauthorized.html', {'message': 'You are not authorized to view this agency.'})
@@ -95,7 +115,7 @@ def agency_detail(request, pk):
         'kyc_form': kyc_form,
     }
     return render(request, 'accounts/agency_detail.html', context)
-
+'''
 
 @login_required
 def agent_list(request, pk):
@@ -115,3 +135,114 @@ def agent_register(request, pk):
     else:
         form = AgentCreationForm()
     return render(request, 'accounts/agent_register.html', {'agency': agency, 'form': form})
+
+
+
+@login_required
+def agency_kyc(request, pk):
+    agency = get_object_or_404(Agency, pk=pk)
+
+    # Authorization Check
+    if request.user != agency.owner:
+        return render(request, 'accounts/unauthorized.html', {'message': 'You are not authorized to view this agency.'})
+
+    kyc_documents = KYCDocument.objects.filter(agency=agency)
+
+    if request.method == 'POST':
+        kyc_form = KYCDocumentForm(request.POST, request.FILES)
+        if kyc_form.is_valid():
+            kyc_doc = kyc_form.save(commit=False)
+            kyc_doc.agency = agency
+            kyc_doc.save()
+            return redirect('accounts:agency_kyc', pk=pk)
+    else:
+        kyc_form = KYCDocumentForm()
+
+    context = {
+        'agency': agency,
+        'kyc_documents': kyc_documents,
+        'kyc_form': kyc_form,
+    }
+    return render(request, 'accounts/agency_kyc.html', context)
+
+
+@login_required
+def agency_info(request, pk):
+    agency = get_object_or_404(Agency, pk=pk)
+
+    # Authorization Check
+    if request.user != agency.owner:
+        return render(request, 'accounts/unauthorized.html', {'message': 'You are not authorized to view this agency.'})
+
+    if request.method == 'POST':
+        update_form = AgencyUpdateForm(request.POST, request.FILES, instance=agency)
+        if update_form.is_valid():
+            update_form.save()
+            return redirect('accounts:agency_info', pk=pk)
+    else:
+        update_form = AgencyUpdateForm(instance=agency)
+
+    context = {
+        'agency': agency,
+        'update_form': update_form,
+    }
+    return render(request, 'accounts/agency_info.html', context)
+
+
+@login_required
+def agent_detail(request, agency_pk, agent_pk):
+    agency = get_object_or_404(Agency, pk=agency_pk)
+    agent = get_object_or_404(Agent, pk=agent_pk)
+
+    # Check if the agent belongs to the agency
+    if agent.agency != agency:
+        return render(request, 'accounts/unauthorized.html', {'message': 'Agent does not belong to this agency.'})
+
+    # Get recent transactions of the agent
+    agent_transactions = Transaction.objects.filter(agent=agent).order_by("-date_heure")[:10]  # Corrected model name
+
+    context = {
+        'agency': agency,
+        'agent': agent,
+        'agent_transactions': agent_transactions,  # transactions of agents.
+    }
+    return render(request, 'accounts/agent_detail.html', context)
+
+
+def agent_login(request):
+    if request.method == 'POST':
+        form = AgentLoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None and user.is_staff is False:
+                login(request, user)
+                return redirect('accounts:agent_dashboard')  # Redirect to agent dashboard
+            else:
+                form.add_error(None, 'Invalid login credentials')
+    else:
+        form = AgentLoginForm()
+    return render(request, 'accounts/agent_login.html', {'form': form})
+
+
+@login_required
+def agent_dashboard(request):
+    # Retrieve agent-specific information here
+    agent = request.user.agent  # Assuming you have a one-to-one relationship
+    return render(request, 'accounts/agent_dashboard.html', {'agent': agent})
+
+@login_required
+def transaction_register(request):
+    if request.method == 'POST':
+        form = TransactionRegistrationForm(request.POST)
+        if form.is_valid():
+            transaction = form.save(commit=False)
+            transaction.agent = request.user.agent  # Set the agent
+            transaction.save()
+            return redirect('accounts:agent_dashboard')  # Redirect to agent dashboard
+        else:
+            print(form.errors)
+    else:
+        form = TransactionRegistrationForm()
+    return render(request, 'accounts/transaction_register.html', {'form': form})

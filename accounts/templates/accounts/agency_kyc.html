@@ -1,3 +1,4 @@
+{# accounts/templates/accounts/agency_kyc.html #}
 {% extends 'accounts/base.html' %}
 {% load static %}
 
@@ -21,12 +22,12 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="{% url 'accounts:agency_info' agency.pk %}">
+            <a class="nav-link" href="{% url 'accounts:agency_info' agency.pk %}">
               <i class="fas fa-info-circle"></i> Agency Information
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'accounts:agency_kyc' agency.pk %}">
+            <a class="nav-link active" aria-current="page" href="{% url 'accounts:agency_kyc' agency.pk %}">
               <i class="fas fa-file-alt"></i> KYC Documents
             </a>
           </li>
@@ -38,28 +39,32 @@
         </ul>
       </div>
     </nav>
+
+    {# Main Content - KYC Documents #}
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-<li class="nav-item">
-  <a class="nav-link" href="{% url 'accounts:agent_register' agency.pk %}">Register Agent</a>
-</li>
-</div>
-<div class="container">
-  <h1>Agents for {{ agency.agency_name }}</h1>
+        <h1 class="h2">KYC Documents</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+        </div>
+      </div>
 
+      <h2>KYC Documents</h2>
+      <ul>
+        {% for doc in kyc_documents %}
+        <li>
+          {{ doc.document_name }} - <a href="{{ doc.document_file.url }}">Download</a>
+        </li>
+        {% endfor %}
+      </ul>
 
-  {% if agents %}
-  <ul>
-      {% for agent in agents %}
-          <li>
-              {{ agent.account.username }} - {{ agent.account.email }} -
-              <a href="{% url 'accounts:agent_detail' agency_pk=agency.pk agent_pk=agent.pk %}">View Details</a>
-          </li>
-      {% endfor %}
-  </ul>
-{% else %}
-  <p>No agents found for this agency.</p>
-{% endif %}
-  <a href="{% url 'accounts:agency_detail' pk=agency.pk %}" class="btn btn-secondary">Back to Agency Details</a>
+      <h3>Upload New KYC Document</h3>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ kyc_form.as_p }}
+        <button type="submit" class="btn btn-primary">Upload KYC Document</button>
+      </form>
+
+    </main>
+  </div>
 </div>
 {% endblock %}
