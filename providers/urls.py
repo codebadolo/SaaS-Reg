@@ -5,6 +5,6 @@ from . import views
 app_name = 'providers'
 
 urlpatterns = [
-    path('list/', views.provider_list, name='provider_list'),
-    # ... other URL patterns ...
+    path('agency/<int:agency_pk>/', views.service_provider_list, name='service_provider_list'),
+    path('agency/<int:agency_pk>/provider/<int:provider_pk>/', views.service_provider_detail, name='service_provider_detail'),
 ]

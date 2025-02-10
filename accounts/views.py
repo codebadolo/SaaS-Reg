@@ -15,12 +15,12 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .forms import ( 
-AgencyCreationForm, AgencyLoginForm , AgencyUpdateForm , AgentLoginForm ,TransactionRegistrationForm
+AgencyCreationForm, AgencyLoginForm , AgencyUpdateForm , AgentLoginForm ,TransactionRegistrationForm , ServiceProviderRegistrationForm
 )
 from .models import Agency
 from django.core.mail import send_mail
 import random
-
+from django.db import transaction
 def home(request):
     return render(request, 'accounts/home.html')
 
@@ -64,7 +64,98 @@ def agency_login(request):
         form = AgencyLoginForm()
     return render(request, 'accounts/agency_login.html', {'form': form})
 
+# accounts/views.py
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+from django.utils import timezone
+from .models import Agency, Agent
+from transactions.models import Transaction
+from providers.models import ServiceProvider
 
+@login_required
+def agency_detail(request, pk):
+    agency = get_object_or_404(Agency, pk=pk)
+
+    # Authorization Check
+    if request.user != agency.owner:
+        return render(request, 'accounts/unauthorized.html', {'message': 'You are not authorized to view this agency.'})
+
+    now = timezone.now()
+    today_min = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_max = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+    # Statistics Calculations
+    today_payments_count = Transaction.objects.filter(
+        agent__agency=agency,
+        date_heure__range=(today_min, today_max)
+    ).count()
+    
+    provider_deposits = {}
+    provider_withdrawals = {}
+    current_balances = {}
+    notifications = Notification.objects.filter(agency=agency).order_by('-timestamp')[:5]
+    for provider in ServiceProvider.objects.all():
+        total_deposit = Transaction.objects.filter(
+            agent__agency=agency,
+            provider=provider,
+            type='deposit'
+        ).aggregate(Sum('montant'))['montant__sum'] or 0
+        provider_deposits[provider.name] = total_deposit
+
+        total_withdrawal = Transaction.objects.filter(
+            agent__agency=agency,
+            provider=provider,
+            type='withdrawal'
+        ).aggregate(Sum('montant'))['montant__sum'] or 0
+        provider_withdrawals[provider.name] = total_withdrawal
+
+        #Calculate current balance (assuming deposits increase balance and withdrawals decrease it)
+        current_balances[provider.name] = total_deposit - total_withdrawal
+
+    top_5_withdrawals = Transaction.objects.filter(agent__agency=agency, type='withdrawal').order_by('-montant')[:5]
+    top_5_deposits = Transaction.objects.filter(agent__agency=agency, type='deposit').order_by('-montant')[:5]
+
+    recent_transactions = Transaction.objects.filter(agent__agency=agency).order_by('-date_heure')[:10]
+
+    context = {
+        'agency': agency,
+        'today_payments_count': today_payments_count,
+        'provider_deposits': provider_deposits,
+        'provider_withdrawals': provider_withdrawals,
+        'top_5_withdrawals': top_5_withdrawals,
+        'top_5_deposits': top_5_deposits,
+         'notifications': notifications,
+        'recent_transactions': recent_transactions,
+        'current_balances': current_balances, #passes the current balances to the templates.
+    }
+    return render(request, 'accounts/agency_detail.html', context)
+
+
+
+'''@login_required
+def agency_detail(request, pk):
+    agency = get_object_or_404(Agency, pk=pk)
+
+    #Authorization Check
+    if request.user != agency.owner:
+        return render(request, 'accounts/unauthorized.html', {'message': 'You are not authorized to view this agency.'})
+
+    # Calculate Statistics
+    total_agents = Agent.objects.filter(agency=agency).count()
+    total_kyc_documents = agency.kyc_documents.count()  # Assuming you have a related_name in your KYCDocument model
+    total_transactions = Transaction.objects.filter(agent__agency=agency).count()  # Assuming Transaction has a ForeignKey to Agent, and Agent has a ForeignKey to Agency
+    recent_transactions = Transaction.objects.filter(agent__agency=agency).order_by('-date_heure')[:5]
+
+    context = {
+        'agency': agency,
+        'total_agents': total_agents,
+        'total_kyc_documents': total_kyc_documents,
+        'total_transactions': total_transactions,
+        'recent_transactions': recent_transactions,
+    }
+    return render(request, 'accounts/agency_detail.html', context)'''
+'''
 @login_required
 def agency_detail(request, pk):
     agency = get_object_or_404(Agency, pk=pk)
@@ -82,7 +173,7 @@ def agency_detail(request, pk):
         'total_agents': total_agents,
         'total_kyc_documents': total_kyc_documents,
     }
-    return render(request, 'accounts/agency_detail.html', context)
+    return render(request, 'accounts/agency_detail.html', context)'''
 '''@login_required
 def agency_detail(request, pk):
     agency = get_object_or_404(Agency, pk=pk)
@@ -189,7 +280,7 @@ def agency_info(request, pk):
     return render(request, 'accounts/agency_info.html', context)
 
 
-@login_required
+'''@login_required
 def agent_detail(request, agency_pk, agent_pk):
     agency = get_object_or_404(Agency, pk=agency_pk)
     agent = get_object_or_404(Agent, pk=agent_pk)
@@ -207,7 +298,48 @@ def agent_detail(request, agency_pk, agent_pk):
         'agent_transactions': agent_transactions,  # transactions of agents.
     }
     return render(request, 'accounts/agent_detail.html', context)
+'''
 
+
+@login_required
+def agent_detail(request, agency_pk, agent_pk):
+    agency = get_object_or_404(Agency, pk=agency_pk)
+    agent = get_object_or_404(Agent, pk=agent_pk)
+
+    if agent.account.is_staff:
+        return render(request, 'accounts/unauthorized.html', {'message': 'Not authorized to modify admin users.'})
+
+    if agent.agency != agency:
+        return render(request, 'accounts/unauthorized.html', {'message': 'Agent does not belong to this agency.'})
+
+    if request.method == 'POST':
+        is_active = request.POST.get('is_active') == 'on'
+        agent.account.is_active = is_active
+        agent.account.save()
+
+        messages.success(request, 'Agent account status updated successfully.')
+        return redirect('accounts:agent_detail', agency_pk=agency_pk, agent_pk=agent_pk)
+
+    agent_transactions = Transaction.objects.filter(agent=agent).order_by("-date_heure")[:10]
+
+    # Agent Statistics
+    now = timezone.now()
+    today_min = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_max = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+    today_transactions_count = Transaction.objects.filter(agent=agent, date_heure__range=(today_min, today_max)).count()
+    total_deposit_amount = Transaction.objects.filter(agent=agent, type='deposit').aggregate(Sum('montant'))['montant__sum'] or 0
+    total_withdrawal_amount = Transaction.objects.filter(agent=agent, type='withdrawal').aggregate(Sum('montant'))['montant__sum'] or 0
+
+    context = {
+        'agency': agency,
+        'agent': agent,
+        'agent_transactions': agent_transactions,
+        'today_transactions_count': today_transactions_count,
+        'total_deposit_amount': total_deposit_amount,
+        'total_withdrawal_amount': total_withdrawal_amount,
+    }
+    return render(request, 'accounts/agent_detail.html', context)
 
 def agent_login(request):
     if request.method == 'POST':
@@ -233,16 +365,43 @@ def agent_dashboard(request):
     return render(request, 'accounts/agent_dashboard.html', {'agent': agent})
 
 @login_required
+@transaction.atomic
 def transaction_register(request):
+    agent = request.user.agent
     if request.method == 'POST':
         form = TransactionRegistrationForm(request.POST)
         if form.is_valid():
-            transaction = form.save(commit=False)
-            transaction.agent = request.user.agent  # Set the agent
+            transaction = form.save(commit=False, agent=agent)
+            transaction.agent = agent
+
+            provider = transaction.provider
+
+            if transaction.type == 'withdrawal' and provider.balance < transaction.montant:
+                messages.error(request, f'Insufficient balance in {provider.name} to complete the withdrawal.')
+
+                # Send notification to the agency owner
+                agency_owner = agent.agency.owner
+                agency = agent.agency
+                notification_message = f'Withdrawal from {provider.name} failed due to insufficient balance.'
+                Notification.objects.create(recipient=agency_owner, message=notification_message, agency=agency)
+                Notification.objects.create(agency=agency, message=notification_message)
+
+                return render(request, 'accounts/transaction_register.html', {'form': form})
+
             transaction.save()
-            return redirect('accounts:agent_dashboard')  # Redirect to agent dashboard
+
+            if transaction.type == 'deposit':
+                provider.balance += transaction.montant
+            elif transaction.type == 'withdrawal':
+                provider.balance -= transaction.montant
+
+            provider.save()
+
+            return redirect('accounts:agent_dashboard')
         else:
             print(form.errors)
     else:
         form = TransactionRegistrationForm()
-    return render(request, 'accounts/transaction_register.html', {'form': form})
+
+    transactions = Transaction.objects.filter(agent=agent).order_by('-date_heure')[:10]
+    return render(request, 'accounts/transaction_register.html', {'form': form, 'transactions': transactions})

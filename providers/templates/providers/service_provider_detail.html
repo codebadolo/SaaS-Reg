@@ -1,0 +1,55 @@
+
+{% extends 'accounts/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'accounts:agency_detail' agency.pk %}">
+                            <i class="fas fa-chart-bar"></i> Agency Statistics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'providers:service_provider_list' agency.pk %}">
+                            <i class="fas fa-hand-holding-usd"></i> Manage Service Providers
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Service Provider Details</h1>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <h2>Provider Information</h2>
+            <p><strong>Name:</strong> {{ provider.name }}</p>
+            <p><strong>Description:</strong> {{ provider.description }}</p>
+            <p><strong>Balance:</strong> {{ provider.balance }}</p>
+
+            {# Deposit Form #}
+            <h2>Deposit Funds</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ deposit_form.as_p }}
+                <button type="submit" class="btn btn-primary">Deposit</button>
+            </form>
+
+            <a href="{% url 'providers:service_provider_list' agency.pk %}" class="btn btn-secondary">Back to Service Providers</a>
+        </main>
+    </div>
+</div>
+{% endblock %}

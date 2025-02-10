@@ -54,10 +54,13 @@ class AgentLoginForm(forms.Form):
     
 
 
+
+
+
 class TransactionRegistrationForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        fields = ['provider', 'nom', 'prenom', 'numero_piece', 'numero_expediteur', 'numero_recepteur', 'montant', 'type', 'agent']  # Add 'agent' to fields
+        fields = ['provider', 'nom', 'prenom', 'numero_piece', 'numero_expediteur', 'numero_recepteur', 'montant', 'type']  # Exclude 'agent' from fields
         widgets = {
             'provider': forms.Select(attrs={'class': 'form-control'}),
             'nom': forms.TextInput(attrs={'class': 'form-control'}),
@@ -67,5 +70,36 @@ class TransactionRegistrationForm(forms.ModelForm):
             'numero_recepteur': forms.TextInput(attrs={'class': 'form-control'}),
             'montant': forms.NumberInput(attrs={'class': 'form-control'}),
             'type': forms.Select(attrs={'class': 'form-control'}),
-            'agent': forms.HiddenInput(),  # Directly set HiddenInput in widgets
         }
+
+
+    def save(self, commit=True, agent=None):
+        instance = super().save(commit=False)
+        if agent:
+            instance.agent = agent
+        if commit:
+            instance.save()
+        return instance
+# providers/forms.py
+from django import forms
+from providers.models import ServiceProvider
+
+class ServiceProviderRegistrationForm(forms.ModelForm):
+    class Meta:
+        model = ServiceProvider
+        fields = ['name', 'description', 'balance']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'balance': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
+
+
+class DepositForm(forms.Form):
+    amount = forms.DecimalField(
+        label="Deposit Amount",
+        decimal_places=2,
+        max_digits=10,
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )

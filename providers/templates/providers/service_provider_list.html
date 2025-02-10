@@ -1,0 +1,97 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+         {# Sidebar #}
+    <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+        <div class="position-sticky pt-3">
+            {% if agency.logo %}
+                <img src="{{ agency.logo.url }}" alt="{{ agency.agency_name }} Logo" class="img-fluid rounded-circle mb-3">
+            {% else %}
+                <p>No logo uploaded</p>
+            {% endif %}
+  
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{% url 'accounts:agency_detail' agency.pk %}">
+                        <i class="fas fa-chart-bar"></i> Agency Statistics
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'accounts:agency_info' agency.pk %}">
+                        <i class="fas fa-info-circle"></i> Agency Information
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'accounts:agency_kyc' agency.pk %}">
+                        <i class="fas fa-file-alt"></i> KYC Documents
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'accounts:agent_list' agency.pk %}">
+                        <i class="fas fa-users"></i> Manage Agents
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'providers:service_provider_list' agency.pk %}">
+                        <i class="fas fa-hand-holding-usd"></i> Manage Service Providers
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'notifications:notification_list' %}">
+                        <i class="fas fa-bell"></i> Notifications
+                    </a>
+                </li>
+        </div>
+    </nav>
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Manage Service Providers</h1>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {# Register Service Provider Form #}
+            <h2>Register New Service Provider</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ provider_form.as_p }}
+                <button type="submit" class="btn btn-primary" name="register_provider">Register</button>
+            </form>
+
+            {# Existing Service Providers #}
+            <h2>Existing Service Providers</h2>
+            <div class="table-responsive">
+                <table class="table table-striped table-sm">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Balance</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for provider in service_providers %}
+                        <tr>
+                            <td>{{ provider.name }}</td>
+                            <td>{{ provider.balance }}</td>
+                            <td>
+                                <a href="{% url 'providers:service_provider_detail' agency_pk=agency.pk provider_pk=provider.pk %}" class="btn btn-sm btn-outline-secondary">View Details</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
