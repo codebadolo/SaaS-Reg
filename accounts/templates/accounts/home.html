@@ -1,20 +1,68 @@
-{# accounts/templates/accounts/my_template.html #}
 {# accounts/templates/accounts/home.html #}
 {% extends 'accounts/base.html' %}
-
+{% load static %}
 
 {% block title %}Home{% endblock %}
 
 {% block content %}
-    <div class="jumbotron">
-        <h1 class="display-4">Welcome to Our Mobile Money Management SaaS!</h1>
-        <p class="lead">Streamline your agency's transactions and manage your agents effectively.</p>
-        <hr class="my-4">
-        <p>Our platform provides tools to track transactions, manage agents, and generate reports.</p>
-        <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
-    </div>
 
-    <h2>Agency Registration</h2>
-    <p>Register your agency to get started.</p>
-    <a class="btn btn-success" href="{% url 'accounts:agency_register' %}">Register Agency</a>
+{# Hero Section #}
+<section class="hero bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="display-4">Welcome to Our Mobile Money Management SaaS!</h1>
+                <p class="lead">Streamline your agency's transactions and manage your agents effectively.</p>
+                <a class="btn btn-light btn-lg" href="#features" role="button">Learn More</a>
+                <a class="btn btn-success btn-lg" href="{% url 'accounts:agency_register' %}" role="button">Get Started</a>
+            </div>
+            <div class="col-md-6">
+                <img src="{% static 'images/hero-image.svg' %}" alt="Mobile Money Illustration" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</section>
+
+{# Features Section #}
+<section id="features" class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Key Features</h2>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-chart-line"></i> Transaction Tracking</h5>
+                        <p class="card-text">Real-time monitoring of all transactions within your agency.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-users"></i> Agent Management</h5>
+                        <p class="card-text">Easily manage agent accounts, permissions, and performance.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-file-alt"></i> Reporting & Analytics</h5>
+                        <p class="card-text">Generate comprehensive reports to gain insights into your agency's operations.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# Call to Action Section #}
+<section class="cta bg-light py-5">
+    <div class="container text-center">
+        <h2>Ready to transform your agency's operations?</h2>
+        <p class="lead">Sign up today and experience the power of our platform.</p>
+        <a class="btn btn-primary btn-lg" href="{% url 'accounts:agency_register' %}" role="button">Register Your Agency</a>
+    </div>
+</section>
+
 {% endblock %}

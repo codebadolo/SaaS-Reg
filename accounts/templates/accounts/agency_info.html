@@ -6,48 +6,54 @@
 <div class="container-fluid">
   <div class="row">
 
-    {# Sidebar #}
-    <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-      <div class="position-sticky pt-3">
-          {% if agency.logo %}
-              <img src="{{ agency.logo.url }}" alt="{{ agency.agency_name }} Logo" class="img-fluid rounded-circle mb-3">
-          {% else %}
-              <p>No logo uploaded</p>
-          {% endif %}
+{# Sidebar #}
+<nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+    <div class="position-sticky pt-3">
+        {% if agency.logo %}
+            <img src="{{ agency.logo.url }}" alt="{{ agency.agency_name }} Logo" class="img-fluid rounded-circle mb-3">
+        {% else %}
+            <p>No logo uploaded</p>
+        {% endif %}
 
-          <ul class="nav flex-column">
-              <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="{% url 'accounts:agency_detail' agency.pk %}">
-                      <i class="fas fa-chart-bar"></i> Agency Statistics
-                  </a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link" href="{% url 'accounts:agency_info' agency.pk %}">
-                      <i class="fas fa-info-circle"></i> Agency Information
-                  </a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link" href="{% url 'accounts:agency_kyc' agency.pk %}">
-                      <i class="fas fa-file-alt"></i> KYC Documents
-                  </a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link" href="{% url 'accounts:agent_list' agency.pk %}">
-                      <i class="fas fa-users"></i> Manage Agents
-                  </a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link" href="{% url 'providers:service_provider_list' agency.pk %}">
-                      <i class="fas fa-hand-holding-usd"></i> Manage Service Providers
-                  </a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link" href="{% url 'notifications:notification_list' %}">
-                      <i class="fas fa-bell"></i> Notifications
-                  </a>
-              </li>
-      </div>
-  </nav>
+        {# Sidebar Toggle Button (Inside Sidebar) #}
+        <button id="sidebarToggle" class="btn btn-sm btn-outline-secondary mb-3">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'agency_statistics' %}active{% endif %}" href="{% url 'accounts:agency_detail' agency.pk %}">
+                    <i class="fas fa-chart-bar"></i> <span> Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'agency_info' %}active{% endif %}" href="{% url 'accounts:agency_info' agency.pk %}">
+                    <i class="fas fa-info-circle"></i> <span>Agency Information</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'agency_kyc' %}active{% endif %}" href="{% url 'accounts:agency_kyc' agency.pk %}">
+                    <i class="fas fa-file-alt"></i> <span>KYC Documents</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'agent_list' %}active{% endif %}" href="{% url 'accounts:agent_list' agency.pk %}">
+                    <i class="fas fa-users"></i> <span>Manage Agents</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'service_provider_list' %}active{% endif %}" href="{% url 'providers:service_provider_list' agency.pk %}">
+                    <i class="fas fa-hand-holding-usd"></i> <span>Manage Service Providers</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'notification_list' %}active{% endif %}" href="{% url 'notifications:notification_list' %}">
+                    <i class="fas fa-bell"></i> <span>Notifications</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
 
     {# Main Content - Agency Information Form #}
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">

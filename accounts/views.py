@@ -9,10 +9,12 @@ from notifications.models import Notification
 from providers.models import ServiceProvider
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse
-
-from django.shortcuts import render, redirect
+# accounts/views.py
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
+from django.db.models import Sum, F , Q
+from django.utils import timezone
+from django.db import migrations, models
 from django.contrib.auth.models import User
 from .forms import ( 
 AgencyCreationForm, AgencyLoginForm , AgencyUpdateForm , AgentLoginForm ,TransactionRegistrationForm , ServiceProviderRegistrationForm
@@ -65,13 +67,9 @@ def agency_login(request):
     return render(request, 'accounts/agency_login.html', {'form': form})
 
 # accounts/views.py
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
-from django.utils import timezone
-from .models import Agency, Agent
-from transactions.models import Transaction
-from providers.models import ServiceProvider
+
+
+
 
 @login_required
 def agency_detail(request, pk):
@@ -90,33 +88,30 @@ def agency_detail(request, pk):
         agent__agency=agency,
         date_heure__range=(today_min, today_max)
     ).count()
-    
-    provider_deposits = {}
-    provider_withdrawals = {}
-    current_balances = {}
-    notifications = Notification.objects.filter(agency=agency).order_by('-timestamp')[:5]
-    for provider in ServiceProvider.objects.all():
-        total_deposit = Transaction.objects.filter(
-            agent__agency=agency,
-            provider=provider,
-            type='deposit'
-        ).aggregate(Sum('montant'))['montant__sum'] or 0
-        provider_deposits[provider.name] = total_deposit
 
-        total_withdrawal = Transaction.objects.filter(
-            agent__agency=agency,
-            provider=provider,
-            type='withdrawal'
-        ).aggregate(Sum('montant'))['montant__sum'] or 0
-        provider_withdrawals[provider.name] = total_withdrawal
+    # Efficient Calculation
+    provider_data = ServiceProvider.objects.filter(agency=agency).annotate(
+        total_deposit=Sum(
+            'transactions__montant',
+            filter=Q(transactions__type='deposit')
+        ),
+        total_withdrawal=Sum(
+            'transactions__montant',
+            filter=Q(transactions__type='withdrawal')
+        )
+    ).values('name', 'total_deposit', 'total_withdrawal', 'balance')
 
-        #Calculate current balance (assuming deposits increase balance and withdrawals decrease it)
-        current_balances[provider.name] = total_deposit - total_withdrawal
+    provider_deposits = {item['name']: item['total_deposit'] or 0 for item in provider_data}
+    provider_withdrawals = {item['name']: item['total_withdrawal'] or 0 for item in provider_data}
+    current_balances = {item['name']: item['balance'] for item in provider_data}
+
 
     top_5_withdrawals = Transaction.objects.filter(agent__agency=agency, type='withdrawal').order_by('-montant')[:5]
     top_5_deposits = Transaction.objects.filter(agent__agency=agency, type='deposit').order_by('-montant')[:5]
 
     recent_transactions = Transaction.objects.filter(agent__agency=agency).order_by('-date_heure')[:10]
+    notifications = Notification.objects.filter(agency=agency).order_by('-timestamp')[:5]
+
 
     context = {
         'agency': agency,
@@ -125,13 +120,11 @@ def agency_detail(request, pk):
         'provider_withdrawals': provider_withdrawals,
         'top_5_withdrawals': top_5_withdrawals,
         'top_5_deposits': top_5_deposits,
-         'notifications': notifications,
         'recent_transactions': recent_transactions,
-        'current_balances': current_balances, #passes the current balances to the templates.
+        'notifications': notifications,
+        'current_balances': current_balances,
     }
     return render(request, 'accounts/agency_detail.html', context)
-
-
 
 '''@login_required
 def agency_detail(request, pk):
