@@ -28,7 +28,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link {% if active_tab == 'agency_info' %}active{% endif %}" href="{% url 'accounts:agency_info' agency.pk %}">
-                    <i class="fas fa-info-circle"></i> <span>Agency Information</span>
+                    <i class="fas fa-info-circle"></i> <span> Info Agence</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -38,12 +38,12 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link {% if active_tab == 'agent_list' %}active{% endif %}" href="{% url 'accounts:agent_list' agency.pk %}">
-                    <i class="fas fa-users"></i> <span>Manage Agents</span>
+                    <i class="fas fa-users"></i> <span>gerer Agents</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {% if active_tab == 'service_provider_list' %}active{% endif %}" href="{% url 'providers:service_provider_list' agency.pk %}">
-                    <i class="fas fa-hand-holding-usd"></i> <span>Manage Service Providers</span>
+                    <i class="fas fa-hand-holding-usd"></i> <span>Gerer Service Fournisseur</span>
                 </a>
             </li>
             <li class="nav-item">

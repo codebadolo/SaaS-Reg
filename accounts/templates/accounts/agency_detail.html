@@ -95,10 +95,7 @@
             <p>No logo uploaded</p>
         {% endif %}
 
-        {# Sidebar Toggle Button (Inside Sidebar) #}
-        <button id="sidebarToggle" class="btn btn-sm btn-outline-secondary mb-3">
-            <i class="fas fa-bars"></i>
-        </button>
+    
 
         <ul class="nav flex-column">
             <li class="nav-item">
@@ -108,7 +105,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link {% if active_tab == 'agency_info' %}active{% endif %}" href="{% url 'accounts:agency_info' agency.pk %}">
-                    <i class="fas fa-info-circle"></i> <span>Agency Information</span>
+                    <i class="fas fa-info-circle"></i> <span> Info agence</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -118,12 +115,12 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link {% if active_tab == 'agent_list' %}active{% endif %}" href="{% url 'accounts:agent_list' agency.pk %}">
-                    <i class="fas fa-users"></i> <span>Manage Agents</span>
+                    <i class="fas fa-users"></i> <span>gerer Agents</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {% if active_tab == 'service_provider_list' %}active{% endif %}" href="{% url 'providers:service_provider_list' agency.pk %}">
-                    <i class="fas fa-hand-holding-usd"></i> <span>Manage Service Providers</span>
+                    <i class="fas fa-hand-holding-usd"></i> <span>gerer compte</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -138,16 +135,15 @@
         {# Main Content #}
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">Agency Dashboard</h1>
-                <button id="sidebarToggle" class="btn btn-sm btn-outline-secondary">
-                    <i class="fas fa-bars"></i> <span>Toggle Sidebar</span>
+                <h1 class="h2">tableau de Board</h1>
+                
                 </button>
             </div>
 
             {# Statistics Cards (Flex Container) #}
             <div class="d-flex flex-wrap justify-content-start mb-3">
                 <div class="card text-white bg-primary mb-3 mx-2" style="max-width: 18rem;">
-                    <div class="card-header">Payments Today</div>
+                    <div class="card-header">Paiement aujodhui</div>
                     <div class="card-body">
                         <h4 class="card-title">{{ today_payments_count }}</h4>
                     </div>
@@ -155,7 +151,7 @@
 
                 {% for provider, deposit in provider_deposits.items %}
                 <div class="card text-white bg-info mb-3 mx-2" style="max-width: 18rem;">
-                    <div class="card-header">Total Deposits - {{ provider }}</div>
+                    <div class="card-header">Depot Total  - {{ provider }}</div>
                     <div class="card-body">
                         <h4 class="card-title">{{ deposit }}</h4>
                     </div>
@@ -164,7 +160,7 @@
 
                 {% for provider, withdrawal in provider_withdrawals.items %}
                 <div class="card text-white bg-warning mb-3 mx-2" style="max-width: 18rem;">
-                    <div class="card-header">Total Withdrawals - {{ provider }}</div>
+                    <div class="card-header">Retrait Total  - {{ provider }}</div>
                     <div class="card-body">
                         <h4 class="card-title">{{ withdrawal }}</h4>
                     </div>
@@ -173,7 +169,7 @@
 
                 {% for provider, balance in current_balances.items %}
                 <div class="card text-white bg-success mb-3 mx-2" style="max-width: 18rem;">
-                    <div class="card-header">Current Balance - {{ provider }}</div>
+                    <div class="card-header">solde actuel - {{ provider }}</div>
                     <div class="card-body">
                         <h4 class="card-title">{{ balance }}</h4>
                     </div>
@@ -182,16 +178,16 @@
             </div>
 
             {# Recent Transactions Table #}
-            <h2>Recent Transactions</h2>
+            <h2>Transactions Recent </h2>
             <div class="table-responsive">
                 <table class="table table-striped table-sm">
                     <thead>
                     <tr>
                         <th>Date</th>
-                        <th>Amount</th>
+                        <th>Montant</th>
                         <th>Type</th>
-                        <th>Receiver</th>
-                        <th>Sender</th>
+                        <th>Recepteur</th>
+                        <th>envoyeur</th>
                         <th>Agent</th>
                     </tr>
                     </thead>
@@ -211,16 +207,16 @@
             </div>
 
             {# Top 5 Withdrawals Table #}
-            <h2>Top 5 Withdrawals</h2>
+            <h2>Top 5 Retrait</h2>
             <div class="table-responsive">
                 <table class="table table-striped table-sm">
                     <thead>
                     <tr>
-                        <th>Transaction Time</th>
-                        <th>Amount</th>
+                        <th>Heure transaction</th>
+                        <th>montant</th>
                         <th>Type</th>
-                        <th>Receiver</th>
-                        <th>Sender</th>
+                        <th>Receveur</th>
+                        <th>Envoyeur</th>
                         <th>Agent</th>
                     </tr>
                     </thead>
