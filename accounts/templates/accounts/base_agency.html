@@ -1,0 +1,172 @@
+{# accounts/templates/accounts/base_agency.html #}
+{% extends 'accounts/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+
+{% endblock %}
+
+{% block content %}
+<style>
+    /* General Styles */
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f8f9fa;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        color: #343a40;
+    }
+
+    /* Collapsible Sidebar Styles */
+    .sidebar {
+        width: 250px;
+        transition: width 0.3s;
+        overflow-x: hidden;
+        background-color: #648EB8FF;
+        border-right: 1px solid #dee2e6;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+        position: fixed;
+    }
+
+    .sidebar.collapsed {
+        width: 70px;
+    }
+
+    .sidebar .nav-link {
+        padding: 0.75rem 1rem;
+        color: #495057;
+        transition: padding 0.3s;
+    }
+
+    .sidebar.collapsed .nav-link span {
+        display: none;
+    }
+
+    .sidebar.collapsed .nav-link {
+        padding: 0.75rem 0.5rem;
+        text-align: center;
+    }
+
+    .nav-link.active {
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+        border-radius: 0.25rem;
+    }
+
+    .nav-link:hover {
+        background-color: #e9ecef;
+    }
+
+    @media (max-width: 768px) {
+        #sidebarToggle span {
+            display: none;
+        }
+        .sidebar {
+            width: 70px;
+        }
+    }
+
+    /* Agency Logo Styling */
+    .img-fluid.rounded-circle {
+        max-width: 150px;
+        border: 3px solid #fff;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
+    }
+
+    /* Main Content Area */
+    main {
+        padding: 20px;
+    }
+
+    /* Cards Styling */
+    .card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    }
+
+    /* Tables */
+    .table-responsive {
+        overflow-x: auto;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        {# Sidebar #}
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky pt-3">
+                <div class="text-center">
+                    {% if agency.logo %}
+                    <img src="{{ agency.logo.url }}" alt="{{ agency.agency_name }} Logo" class="img-fluid rounded-circle mb-3">
+                    {% else %}
+                    <p>No logo uploaded</p>
+                    {% endif %}
+                </div>
+
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab == 'agency_statistics' %}active{% endif %}" href="{% url 'accounts:agency_detail' agency.pk %}">
+                            <i class="fas fa-chart-bar"></i> <span> Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab == 'agency_info' %}active{% endif %}" href="{% url 'accounts:agency_info' agency.pk %}">
+                            <i class="fas fa-info-circle"></i> <span> Info agence</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab == 'agency_kyc' %}active{% endif %}" href="{% url 'accounts:agency_kyc' agency.pk %}">
+                            <i class="fas fa-file-alt"></i> <span>KYC Documents</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab == 'agent_list' %}active{% endif %}" href="{% url 'accounts:agent_list' agency.pk %}">
+                            <i class="fas fa-users"></i> <span>gerer Agents</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab == 'service_provider_list' %}active{% endif %}" href="{% url 'providers:service_provider_list' agency.pk %}">
+                            <i class="fas fa-hand-holding-usd"></i> <span>gerer compte</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab == 'notification_list' %}active{% endif %}" href="{% url 'notifications:notification_list' %}">
+                            <i class="fas fa-bell"></i> <span>Notifications</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        {# Main Content #}
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            {% block main_content %}{% endblock %}
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Sidebar Toggle Logic
+    document.addEventListener('DOMContentLoaded', function () {
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+
+        sidebarToggle.addEventListener('click', function () {
+            sidebar.classList.toggle('collapsed');
+        });
+    });
+</script>
+{% endblock %}

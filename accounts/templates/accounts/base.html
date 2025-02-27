@@ -10,50 +10,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}My Mobile Money App{% endblock %}</title>
     <link rel="stylesheet" href="https://bootswatch.com/5/lux/bootstrap.min.css">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+   
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 </head>
-<body class="d-flex flex-column h-100">
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-            <div class="container">
-                <a class="navbar-brand" href="{% url 'accounts:home' %}">
-                    <img src="{% static 'images/logo.png' %}" alt="Logo" height="30" class="d-inline-block align-top">
-                    My App
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ml-auto">
-                        {% if user.is_authenticated %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <i class="fas fa-user"></i> Welcome, {{ user.username }}
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'accounts:agency_register' %}">Register Agency</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Logout</a>
-                            </li>
-                        {% else %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Login</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Register</a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
 
-    <main class="flex-shrink-0">
+    {% comment %}
+        <header>
+            <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+                <div class="container">
+                    <a class="navbar-brand" href="{% url 'accounts:home' %}">
+                        <img src="{% static 'images/logo.png' %}" alt="Logo" height="30" class="d-inline-block align-top">
+                        My App
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ml-auto">
+                            {% if user.is_authenticated %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">
+                                        <i class="fas fa-user"></i> Welcome, {{ user.username }}
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'accounts:agency_register' %}">Register Agency</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">Logout</a>
+                                </li>
+                            {% else %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">Login</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">Register</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header
+    {% endcomment %}
+
+    <main class="">
         <div class="">
             {% block content %}{% endblock %}
         </div>

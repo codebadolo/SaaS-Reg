@@ -1,55 +1,9 @@
 {# accounts/templates/accounts/agency_kyc.html #}
-{% extends 'accounts/base.html' %}
+{% extends 'accounts/base_agency.html' %}
 {% load static %}
 
-{% block content %}
-<div class="container-fluid">
-  <div class="row">
- {# Sidebar #}
- <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-  <div class="position-sticky pt-3">
-      {% if agency.logo %}
-          <img src="{{ agency.logo.url }}" alt="{{ agency.agency_name }} Logo" class="img-fluid rounded-circle mb-3">
-      {% else %}
-          <p>No logo uploaded</p>
-      {% endif %}
-
-      <ul class="nav flex-column">
-          <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{% url 'accounts:agency_detail' agency.pk %}">
-                  <i class="fas fa-chart-bar"></i> Agency Statistics
-              </a>
-          </li>
-          <li class="nav-item">
-              <a class="nav-link" href="{% url 'accounts:agency_info' agency.pk %}">
-                  <i class="fas fa-info-circle"></i> Agency Information
-              </a>
-          </li>
-          <li class="nav-item">
-              <a class="nav-link" href="{% url 'accounts:agency_kyc' agency.pk %}">
-                  <i class="fas fa-file-alt"></i> KYC Documents
-              </a>
-          </li>
-          <li class="nav-item">
-              <a class="nav-link" href="{% url 'accounts:agent_list' agency.pk %}">
-                  <i class="fas fa-users"></i> Manage Agents
-              </a>
-          </li>
-          <li class="nav-item">
-              <a class="nav-link" href="{% url 'providers:service_provider_list' agency.pk %}">
-                  <i class="fas fa-hand-holding-usd"></i> Manage Service Providers
-              </a>
-          </li>
-          <li class="nav-item">
-              <a class="nav-link" href="{% url 'notifications:notification_list' %}">
-                  <i class="fas fa-bell"></i> Notifications
-              </a>
-          </li>
-  </div>
-</nav>
-
-    {# Main Content - KYC Documents #}
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+{% block main_content %}
+ 
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">KYC Documents</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
@@ -72,7 +26,4 @@
         <button type="submit" class="btn btn-primary">Upload KYC Document</button>
       </form>
 
-    </main>
-  </div>
-</div>
 {% endblock %}
