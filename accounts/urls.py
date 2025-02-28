@@ -18,12 +18,15 @@ Including another URLconf
 # accounts/urls.py
 from django.urls import path
 from . import views
+from notifications.views  import notification_list
 
 app_name = 'accounts'
 
 urlpatterns = [
+     path('list/', notification_list, name='notification_list'),
      path('', views.home, name='home'),  # Maps / to the home view
       path('agency/register/', views.agency_register, name='agency_register'),
+       path('logout/', views.logout_view, name='logout'),
     path('agency/login/', views.agency_login, name='agency_login'),
         path('agency/<int:pk>/', views.agency_detail, name='agency_detail'),
             path('agency/<int:pk>/agents/', views.agent_list, name='agent_list'),

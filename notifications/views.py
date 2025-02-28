@@ -22,7 +22,7 @@ def notification_list(request):
     else:
         notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')
 
-    return render(request, 'notifications/notification_list.html', {'notifications': notifications})
+    return render(request, 'accounts/notification_list.html', {'notifications': notifications})
 
 @login_required
 def mark_as_read(request, notification_id):

@@ -1,57 +1,66 @@
-{# accounts/templates/accounts/agency_info.html #}
+{# accounts/templates/accounts/service_provider_list.html #}
 {% extends 'accounts/base_agency.html' %}
 {% load static %}
 
 {% block main_content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Gérer les Fournisseurs de Services</h1>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProviderModal">
+        Ajouter un Fournisseur de Services
+    </button>
+</div>
 
-         {# Sidebar #}
-  
-  
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">Manage Service Providers</h1>
+{% if messages %}
+{% for message in messages %}
+<div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
+    {{ message }}
+</div>
+{% endfor %}
+{% endif %}
+
+{# Existing Service Providers #}
+<h2>Fournisseurs de Services Existants</h2>
+<div class="table-responsive">
+    <table class="table table-striped table-sm">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Solde</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for provider in service_providers %}
+            <tr>
+                <td>{{ provider.name }}</td>
+                <td>{{ provider.balance }}</td>
+                <td>
+                    <a href="{% url 'providers:service_provider_detail' agency_pk=agency.pk provider_pk=provider.pk %}"
+                        class="btn btn-sm btn-outline-secondary">Voir les Détails</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{# Modal for Adding Service Provider #}
+<div class="modal fade" id="addProviderModal" tabindex="-1" aria-labelledby="addProviderModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addProviderModalLabel">Enregistrer un Nouveau Fournisseur de Services</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-
-            {# Register Service Provider Form #}
-            <h2>Register New Service Provider</h2>
-            <form method="post">
-                {% csrf_token %}
-                {{ provider_form.as_p }}
-                <button type="submit" class="btn btn-primary" name="register_provider">Register</button>
-            </form>
-
-            {# Existing Service Providers #}
-            <h2>Existing Service Providers</h2>
-            <div class="table-responsive">
-                <table class="table table-striped table-sm">
-                    <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Balance</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for provider in service_providers %}
-                        <tr>
-                            <td>{{ provider.name }}</td>
-                            <td>{{ provider.balance }}</td>
-                            <td>
-                                <a href="{% url 'providers:service_provider_detail' agency_pk=agency.pk provider_pk=provider.pk %}" class="btn btn-sm btn-outline-secondary">View Details</a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+            <div class="modal-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ provider_form.as_p }}
+                    <button type="submit" class="btn btn-primary" name="register_provider">Enregistrer</button>
+                </form>
             </div>
-        </main>
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -9,6 +9,7 @@ from notifications.models import Notification
 from providers.models import ServiceProvider
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse
+from django.contrib.auth import login, authenticate, logout
 # accounts/views.py
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import authenticate, login
@@ -200,6 +201,9 @@ def agency_detail(request, pk):
     }
     return render(request, 'accounts/agency_detail.html', context)
 '''
+def logout_view(request):
+    logout(request)
+    return redirect('index')  # Redirect to your home page or login page
 
 @login_required
 def agent_list(request, pk):
