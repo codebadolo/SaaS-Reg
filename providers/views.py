@@ -6,9 +6,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
 from accounts.models import Agency
+from django.db.models import Sum
 from .models import ServiceProvider
 from accounts.forms import ServiceProviderRegistrationForm, DepositForm
-
+from transactions.models import Transaction
 @login_required
 def service_provider_list(request, agency_pk):
     agency = get_object_or_404(Agency, pk=agency_pk)
@@ -54,6 +55,18 @@ def service_provider_detail(request, agency_pk, provider_pk):
             amount = deposit_form.cleaned_data['amount']
             provider.balance += amount
             provider.save()
+            # Create a transaction record for the deposit
+            Transaction.objects.create(
+                provider=provider,
+                type='deposit',
+                montant=amount,
+                # You might need to adjust these fields based on your actual requirements
+                nom='System',
+                prenom='Deposit',
+                numero_piece='N/A',
+                numero_expediteur='N/A',
+                numero_recepteur='N/A',
+            )
             messages.success(request, f'Successfully deposited {amount} into {provider.name}.')
             return redirect('providers:service_provider_detail', agency_pk=agency_pk, provider_pk=provider_pk)
         else:
@@ -61,9 +74,26 @@ def service_provider_detail(request, agency_pk, provider_pk):
     else:
         deposit_form = DepositForm()
 
+    # Calculate total deposits and withdrawals
+    total_deposits = Transaction.objects.filter(
+        provider=provider,
+        type='deposit'
+    ).aggregate(Sum('montant'))['montant__sum'] or 0
+
+    total_withdrawals = Transaction.objects.filter(
+        provider=provider,
+        type='withdrawal'
+    ).aggregate(Sum('montant'))['montant__sum'] or 0
+
+    # Fetch all transactions for the provider
+    transactions = Transaction.objects.filter(provider=provider).order_by('-date_heure')
+
     context = {
         'agency': agency,
         'provider': provider,
         'deposit_form': deposit_form,
+        'total_deposits': total_deposits,
+        'total_withdrawals': total_withdrawals,
+        'transactions': transactions,
     }
     return render(request, 'providers/service_provider_detail.html', context)

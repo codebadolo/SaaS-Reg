@@ -1,61 +1,120 @@
-{# accounts/templates/accounts/agency_detail.html #}
 {% extends 'accounts/base_agency.html' %}
 {% load static %}
 
 {% block main_content %}
-    {# Main Content #}
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">tableau de Board</h1>
+<style>
+    /* Card Styling */
+    .dashboard-card {
+        max-width: 18rem;
+        margin-bottom: 1.5rem;
+        margin-right: 1.5rem; /* Space between cards */
+        border-radius: 0.5rem; /* Rounded corners */
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* Subtle shadow */
+    }
+
+    .dashboard-card .card-header {
+        font-weight: 500; /* Semi-bold header */
+        border-bottom: 1px solid rgba(0, 0, 0, 0.125); /* Lighter border */
+        padding: 0.75rem 1.25rem;
+    }
+
+    .dashboard-card .card-body {
+        padding: 1.25rem;
+    }
+
+    .dashboard-card .card-title {
+        margin-bottom: 0; /* Remove default margin */
+        font-size: 1.5rem; /* Larger title */
+    }
+
+    /* Table Styling */
+    .dashboard-table-container {
+        margin-bottom: 2rem; /* Space between tables */
+    }
+
+    .dashboard-table {
+        width: 100%;
+        border-collapse: collapse;
+        border-radius: 0.5rem; /* Rounded corners */
+        overflow: hidden; /* Hide overflow for rounded corners */
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* Subtle shadow */
+    }
+
+    .dashboard-table thead {
+        background-color: #343a40; /* Dark header background */
+        color: white;
+    }
+
+    .dashboard-table th,
+    .dashboard-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6; /* Lighter border */
+    }
+
+    .dashboard-table tbody tr:nth-child(even) {
+        background-color: #f8f9fa; /* Light alternating background */
+    }
+
+    .dashboard-table tbody tr:hover {
+        background-color: #e9ecef; /* Highlight on hover */
+    }
+</style>
+
+{# Main Content #}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Tableau de Board</h1>
+</div>
+
+{# Statistics Cards (Flex Container) #}
+<div class="d-flex flex-wrap justify-content-start mb-3">
+    <div class="card text-white bg-primary dashboard-card">
+        <div class="card-header bg-black">Paiement aujodhui</div>
+        <div class="card-body">
+            <h4 class="card-title">{{ today_payments_count }}</h4>
+        </div>
     </div>
 
-    {# Statistics Cards (Flex Container) #}
-    <div class="d-flex flex-wrap justify-content-start mb-3">
-        <div class="card text-white bg-primary mb-3 mx-2" style="max-width: 18rem;">
-            <div class="card-header">Paiement aujodhui</div>
-            <div class="card-body">
-                <h4 class="card-title">{{ today_payments_count }}</h4>
-            </div>
+    {% for provider, deposit in provider_deposits.items %}
+    <div class="card text-white bg-info dashboard-card">
+        <div class="card-header bg-black">Depot Total - {{ provider }}</div>
+        <div class="card-body">
+            <h4 class="card-title">{{ deposit }}</h4>
         </div>
-
-        {% for provider, deposit in provider_deposits.items %}
-        <div class="card text-white bg-info mb-3 mx-2" style="max-width: 18rem;">
-            <div class="card-header">Depot Total - {{ provider }}</div>
-            <div class="card-body">
-                <h4 class="card-title">{{ deposit }}</h4>
-            </div>
-        </div>
-        {% endfor %}
-
-        {% for provider, withdrawal in provider_withdrawals.items %}
-        <div class="card text-white bg-warning mb-3 mx-2" style="max-width: 18rem;">
-            <div class="card-header">Retrait Total - {{ provider }}</div>
-            <div class="card-body">
-                <h4 class="card-title">{{ withdrawal }}</h4>
-            </div>
-        </div>
-        {% endfor %}
-
-        {% for provider, balance in current_balances.items %}
-        <div class="card text-white bg-success mb-3 mx-2" style="max-width: 18rem;">
-            <div class="card-header">solde actuel - {{ provider }}</div>
-            <div class="card-body">
-                <h4 class="card-title">{{ balance }}</h4>
-            </div>
-        </div>
-        {% endfor %}
     </div>
+    {% endfor %}
 
-    {# Recent Transactions Table #}
+    {% for provider, withdrawal in provider_withdrawals.items %}
+    <div class="card text-white bg-warning dashboard-card">
+        <div class="card-header bg-black">Retrait Total - {{ provider }}</div>
+        <div class="card-body">
+            <h4 class="card-title">{{ withdrawal }}</h4>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% for provider, balance in current_balances.items %}
+    <div class="card text-white bg-success dashboard-card">
+        <div class="card-header bg-black">Solde actuel - {{ provider }}</div>
+        <div class="card-body">
+            <h4 class="card-title">{{ balance }}</h4>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{# Recent Transactions Table #}
+<div class="dashboard-table-container">
     <h2>Transactions Recent</h2>
     <div class="table-responsive">
-        <table class="table table-striped table-sm">
+        <table class="table table-striped table-sm dashboard-table">
             <thead>
                 <tr>
                     <th>Date</th>
                     <th>Montant</th>
                     <th>Type</th>
                     <th>Recepteur</th>
-                    <th>envoyeur</th>
+                    <th>Envoyeur</th>
                     <th>Agent</th>
                 </tr>
             </thead>
@@ -69,15 +128,17 @@
                     <td>{{ transaction.numero_expediteur }}</td>
                     <td>{{ transaction.agent.account.username }}</td>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
-    {# Top 5 Withdrawals Table #}
+{# Top 5 Withdrawals Table #}
+<div class="dashboard-table-container">
     <h2>Top 5 Retrait</h2>
     <div class="table-responsive">
-        <table class="table table-striped table-sm">
+        <table class="table table-striped table-sm dashboard-table">
             <thead>
                 <tr>
                     <th>Heure transaction</th>
@@ -91,22 +152,24 @@
             <tbody>
                 {% for transaction in top_5_withdrawals %}
                 <tr>
-                    <td>{{ transaction.date_heure|date:"d/m/Y"  }}</td>
+                    <td>{{ transaction.date_heure|date:"d/m/Y" }}</td>
                     <td>{{ transaction.montant }}</td>
                     <td>{{ transaction.type }}</td>
                     <td>{{ transaction.numero_recepteur }}</td>
                     <td>{{ transaction.numero_expediteur }}</td>
                     <td>{{ transaction.agent.account.username }}</td>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
-    {# Top 5 Deposits Table #}
+{# Top 5 Deposits Table #}
+<div class="dashboard-table-container">
     <h2>Top 5 Deposits</h2>
     <div class="table-responsive">
-        <table class="table table-striped table-sm">
+        <table class="table table-striped table-sm dashboard-table">
             <thead>
                 <tr>
                     <th>Transaction Time</th>
@@ -127,32 +190,30 @@
                     <td>{{ transaction.numero_expediteur }}</td>
                     <td>{{ transaction.agent.account.username }}</td>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
-    <h2>Latest Notifications</h2>
-    {% if notifications %}
-        <ul class="list-group">
-            {% for notification in notifications %}
-                <li class="list-group-item">
-                    {{ notification.message }}
-                    <span class="text-muted">({{ notification.timestamp }})</span>
-                </li>
-            {% endfor %}
-        </ul>
-       
-    {% else %}
-        <p>No notifications yet.</p>
-    {% endif %}
+<h2>Latest Notifications</h2>
+{% if notifications %}
+<ul class="list-group">
+    {% for notification in notifications %}
+    <li class="list-group-item">
+        {{ notification.message }}
+        <span class="text-muted">({{ notification.timestamp }})</span>
+    </li>
+    {% endfor %}
+</ul>
 
+{% else %}
+<p>No notifications yet.</p>
+{% endif %}
 
 {% endblock %}
 
 {% block scripts %}
-
-
 <script>
     // Sidebar Toggle Logic
     document.addEventListener('DOMContentLoaded', function () {
