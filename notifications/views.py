@@ -22,7 +22,10 @@ def notification_list(request):
     else:
         notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')
 
-    return render(request, 'accounts/notification_list.html', {'notifications': notifications})
+    return render(request, 'accounts/notification_list.html', {
+        'notifications': notifications,
+        'agency': agency  # Pass the agency object to the template
+    })
 
 @login_required
 def mark_as_read(request, notification_id):

@@ -1,4 +1,3 @@
-{# transactions/templates/transactions/transaction_register.html #}
 {% extends 'accounts/base.html' %}
 {% load static %}
 
@@ -15,11 +14,6 @@
                             <i class="fas fa-home"></i> Dashboard
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{% url 'transactions:transaction_register' %}">
-                            <i class="fas fa-plus-circle"></i> Register Transaction
-                        </a>
-                    </li>
                     {# Add more sidebar links as needed #}
                 </ul>
             </div>
@@ -29,13 +23,14 @@
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                 <h1 class="h2">Register Transaction</h1>
-            </div>
-
-            {# Button to Open Modal #}
+                 {# Button to Open Modal #}
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#transactionModal">
                 Register New Transaction
             </button>
 
+            </div>
+
+          
             {# Transaction Form Modal #}
             <div class="modal fade" id="transactionModal" tabindex="-1" aria-labelledby="transactionModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -57,24 +52,32 @@
 
             {# Transaction Table #}
             <div class ="table-responsive">
-              <table class="table table-striped table-sm">
+              <table id="transactionTable" class="table table-striped table-sm">
                 <thead>
                   <tr>
-                    <th scope="col">Transaction time</th>
-                    <th scope="col">Amount</th>
-                    <th scope="col">Type</th>
-                    <th scope="col">Receiver</th>
-                    <th scope="col">Sender</th>
+                    <th>Date</th>
+                    <th>Montant</th>
+                    <th>Nom</th>
+                    <th>Prenom</th>
+                    <th>Numero Piece</th>
+                    <th>Type</th>
+                    <th>Recepteur</th>
+                    <th>Envoyeur</th>
+                
                   </tr>
                 </thead>
                 <tbody>
                   {% for transaction in transactions %}
                   <tr>
-                    <td>{{ transaction.date_heure }}</td>
+                    <td>{{ transaction.date_heure|date:'Y-m-d H:i'  }}</td>
                     <td>{{ transaction.montant }}</td>
+                    <td>{{ transaction.nom }}</td>
+                    <td>{{ transaction.prenom }}</td>
+                    <td>{{ transaction.numero_piece }}</td>
                     <td>{{ transaction.type }}</td>
                     <td>{{ transaction.numero_recepteur }}</td>
                     <td>{{ transaction.numero_expediteur }}</td>
+              
                   </tr>
                   {% endfor %}
                 </tbody>
@@ -84,4 +87,18 @@
         </main>
     </div>
 </div>
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready( function () {
+        $('#transactionTable').DataTable({
+             "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json"
+            }
+        });
+    } );
+</script>
 {% endblock %}

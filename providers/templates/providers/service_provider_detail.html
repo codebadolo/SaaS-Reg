@@ -118,7 +118,42 @@
 
 {# Transactions #}
 <div class="card mt-3">
+
     <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label for="transactionType">Type de Transaction:</label>
+                <select id="transactionType" class="form-control">
+                    <option value="">Tous</option>
+                    <option value="deposit">Dépôt</option>
+                    <option value="withdrawal">Retrait</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="fullName">Nom et Prénom:</label>
+                <input type="text" id="fullName" class="form-control" placeholder="Rechercher...">
+            </div>
+            <div class="col-md-3">
+                <label for="idPiece">Numéro Pièce:</label>
+                <input type="text" id="idPiece" class="form-control" placeholder="Rechercher...">
+            </div>
+       
+        
+         {# Date Filters #}
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="specificDate">Date Spécifique:</label>
+                <input type="date" id="specificDate" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label for="startDate">Date de Début:</label>
+                <input type="date" id="startDate" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label for="endDate">Date de Fin:</label>
+                <input type="date" id="endDate" class="form-control">
+            </div>
+        </div>
         <h5 class="card-title">Transactions</h5>
         <div class="table-responsive">
             <table id="transactionsTable" class="display compact" style="width:100%">
@@ -126,6 +161,9 @@
                     <tr>
                         <th class="dt-left">Type</th>
                         <th class="dt-left">Amount</th>
+                        <td class="dt-left">Nom</td>
+                        <td class="dt-left">Prenom</td>
+                        <td class="dt-left">Numéro Pièce</td>  
                         <th class="dt-left">Sender Number</th>
                         <th class="dt-left">Receiver Number</th>
                         <th class="dt-left">Timestamp</th>
@@ -136,18 +174,19 @@
                     <tr>
                         <td class="dt-left {% if transaction.type == 'deposit' %}dt-type-deposit{% elif transaction.type == 'withdrawal' %}dt-type-withdrawal{% endif %}">{{ transaction.get_type_display }}</td>
                         <td class="dt-left">{{ transaction.montant }}</td>
+                        <td class="dt-left">{{ transaction.nom }}</td>
+                        <td class="dt-left">{{ transaction.prenom }}</td>
+                        <td class="dt-left">{{ transaction.numero_piece }}</td>
                         <td class="dt-left">{{ transaction.numero_expediteur }}</td>
                         <td class="dt-left">{{ transaction.numero_recepteur }}</td>
-                        <td class="dt-left">{{ transaction.date_heure }}</td>
+                        <td class="dt-left">{{ transaction.date_heure|date:'Y-m-d H:i'  }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
-</div>
-
-<a href="{% url 'providers:service_provider_list' agency_pk=agency.pk %}" class="btn btn-secondary mt-3">Retour à la Liste des Fournisseurs</a>
+</div>... <a href="{% url 'providers:service_provider_list' agency_pk=agency.pk %}" class="btn btn-secondary mt-3">Retour à la Liste des Fournisseurs</a>
 
 {# Modal for Depositing Funds #}
 <div class="modal fade" id="depositModal" tabindex="-1" aria-labelledby="depositModalLabel" aria-hidden="true">
@@ -168,11 +207,13 @@
     </div>
 </div>
 
+
 <!-- DataTables CSS -->
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 
 <!-- jQuery -->
 <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -186,8 +227,8 @@
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
 
 <script>
-    $(document).ready(function () {
-        $('#transactionsTable').DataTable({
+     $(document).ready(function () {
+        var table = $('#transactionsTable').DataTable({
             dom: 'Bfrtip',
             pageLength: 40,
             order: [],
@@ -229,8 +270,98 @@
             ],
             responsive: true
         });
+          //Date range filter
+        minDateFilter = (new DateTime($('#startDate'), {format: 'MMMM Do YYYY'}));
+        maxDateFilter = (new DateTime($('#endDate'), {format: 'MMMM Do YYYY'}));
     });
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
+ <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/datetime/1.5.1/css/dataTables.dateTime.min.css">
+<script type="text/javascript" src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var table = $('#transactionsTable').DataTable({
+            dom: 'Bfrtip',
+            pageLength: 40,
+            order: [],
+            buttons: [
+                {
+                    extend: 'csv',
+                    text: 'Export CSV',
+                    filename: 'transactions - {{ provider.name }}',
+                    className: 'btn btn-success',
+                    exportOptions: { columns: ':not(:last-child)' }
+                },
+                {
+                    extend: 'excel',
+                    text: 'Export Excel',
+                    filename: 'transactions - {{ provider.name }}',
+                    className: 'btn btn-success',
+                    exportOptions: { columns: ':not(:last-child)' }
+                },
+                {
+                    extend: 'print',
+                    text: 'Print',
+                    className: 'btn btn-secondary',
+                    title: 'Transactions for {{ provider.name }}',
+                    exportOptions: { columns: ':not(:last-child)' }
+                }
+            ],
+            columnDefs: [
+                { targets: '_all', orderable: true, className: 'dt-left' }
+            ],
+            responsive: true
+        });
+    
+        // Filter by Transaction Type
+        $('#transactionType').on('change', function () {
+            table.column(0).search(this.value).draw();
+        });
+    
+        // Filter by Full Name
+        $('#fullName').on('keyup', function () {
+            table.column(2).search(this.value).draw();
+        });
+    
+        // Filter by ID Number (Numéro Pièce)
+        $('#idPiece').on('keyup', function () {
+            table.column(3).search(this.value).draw();
+        });
+    
+        // Date range filter
+        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+            var min = $('#startDate').val();
+            var max = $('#endDate').val();
+            var date = data[4]; // Assuming the date is in column 4
+    
+            if (
+                (min === "" && max === "") ||
+                (min === "" && date <= max) ||
+                (min <= date && max === "") ||
+                (min <= date && date <= max)
+            ) {
+                return true;
+            }
+            return false;
+        });
+    
+        $('#startDate, #endDate').on('change', function () {
+            table.draw();
+        });
+    });
+    
+</script>
+<script>
+    $(document).ready(function () {
+        var table = $('#transactionsTable').DataTable();
+          //Date range filter
+        minDateFilter = (new DateTime($('#startDate'), {format: 'MMMM Do YYYY'}));
+        maxDateFilter = (new DateTime($('#endDate'), {format: 'MMMM Do YYYY'}));
+        $('#startDate, #endDate').on('change', function () {
+            table.draw();
+        });
+    });
 
-{% endblock main_content %}
-
+    
+</script>
+{% endblock  %}

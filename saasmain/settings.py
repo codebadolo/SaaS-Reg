@@ -71,6 +71,8 @@ TEMPLATES = [
         },
     },
 ]
+USE_THOUSAND_SEPARATOR = True
+SHORT_DATETIME_FORMAT = 'Y-m-d H:i:s'
 
 WSGI_APPLICATION = 'saasmain.wsgi.application'
 

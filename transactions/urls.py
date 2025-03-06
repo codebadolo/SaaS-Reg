@@ -5,6 +5,6 @@ from . import views
 app_name = 'transactions'
 
 urlpatterns = [
-  path('register/', views.transaction_register, name='transaction_register'),  # Correct spelling
+  path('register/', views.transaction_registerr, name='transaction_register'),  # Correct spelling
 
 ]

@@ -1,0 +1,31 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+
+{# Agent Sidebar #}
+<nav id="agent-sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+    <div class="position-sticky pt-3">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="{% url 'accounts:agent_dashboard' %}">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'accounts:transaction_register' %}">
+                    <i class="fas fa-plus-circle"></i> Register Transaction
+                </a>
+            </li>
+            {# Add more sidebar links as needed #}
+        </ul>
+    </div>
+</nav>
+
+{# Main Content Area #}
+<div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Agent Dashboard</h1>
+    </div>
+
+    {# Agent Dashboard Content Goes Here #}
+    {% block agent_content %}{% endblock %}
+</div>

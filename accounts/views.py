@@ -20,13 +20,21 @@ from django.contrib.auth.models import User
 from .forms import ( 
 AgencyCreationForm, AgencyLoginForm , AgencyUpdateForm , AgentLoginForm ,TransactionRegistrationForm , ServiceProviderRegistrationForm
 )
+from django.views.decorators.csrf import csrf_protect
 from .models import Agency
 from django.core.mail import send_mail
 import random
 from django.db import transaction
-def home(request):
-    return render(request, 'accounts/home.html')
 
+@csrf_protect
+def home(request):
+    agency_form = AgencyLoginForm()
+    agent_form = AgentLoginForm()
+    
+    return render(request, 'accounts/home.html', {
+        'agency_form': agency_form,
+        'agent_form': agent_form,
+    })
 
 def agency_register(request):
     if request.method == 'POST':
@@ -60,12 +68,13 @@ def agency_login(request):
             if user is not None:
                 login(request, user)
                 agency = get_object_or_404(Agency, owner=user)  # Get the agency associated with the user
-                return redirect('accounts:agency_detail', pk=agency.pk)
+                return redirect('accounts:agency_detail', pk=agency.pk)  # Pass the pk argument
             else:
                 form.add_error(None, "Invalid username or password.")
     else:
         form = AgencyLoginForm()
     return render(request, 'accounts/agency_login.html', {'form': form})
+
 
 # accounts/views.py
 
@@ -201,9 +210,10 @@ def agency_detail(request, pk):
     }
     return render(request, 'accounts/agency_detail.html', context)
 '''
+@login_required
 def logout_view(request):
     logout(request)
-    return redirect('index')  # Redirect to your home page or login page
+    return redirect('home')  # Redirect to your home page or login page
 
 @login_required
 def agent_list(request, pk):

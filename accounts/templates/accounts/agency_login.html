@@ -1,19 +1,42 @@
-{# accounts/templates/accounts/agency_detail.html #}
 {% extends 'accounts/base.html' %}
+{% load static %}
+
+{% block title %}Agency Login{% endblock %}
+
 {% block content %}
 <div class="container">
-  <h1>Agency Login</h1>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Login</button>
-    {% if form.errors %}
-      <div class="alert alert-danger">
-        {% for error in form.non_field_errors %}
-          {{ error }}
-        {% endfor %}
-      </div>
-    {% endif %}
-  </form>
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header text-center bg-primary text-white">
+                    <h4>Agency Login</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-primary btn-block">Login</button>
+                        {% if form.errors %}
+                            <div class="alert alert-danger mt-3">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    body {
+        background-color: #f8f9fa; /* Light background color */
+    }
+    .card {
+        border-radius: 10px; /* Rounded corners */
+    }
+</style>
+
 {% endblock %}

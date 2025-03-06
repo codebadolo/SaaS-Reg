@@ -161,7 +161,7 @@
                 <ul class="nav flex-column">
                     <li class="nav-item">
                         <a class="nav-link {% if active_tab == 'agency_statistics' %}active{% endif %}"
-                            href="{% url 'accounts:agency_detail' agency.pk %}">
+                            href="{% url 'accounts:agency_detail'  agency.pk %}">
                             <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
                         </a>
                     </li>
@@ -219,9 +219,8 @@
         </main>
     </div>
 </div>
-{% endblock %}
 
-{% block scripts %}
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
