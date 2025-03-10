@@ -60,9 +60,8 @@ class AgentLoginForm(forms.Form):
 class TransactionRegistrationForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        fields = ['provider', 'nom', 'prenom', 'numero_piece', 'numero_expediteur', 'numero_recepteur', 'montant', 'type']  # Exclude 'agent' from fields
+        fields = ['nom', 'prenom', 'numero_piece', 'numero_expediteur', 'numero_recepteur', 'montant', 'type']  # Exclude 'provider' and 'agent'
         widgets = {
-            'provider': forms.Select(attrs={'class': 'form-control'}),
             'nom': forms.TextInput(attrs={'class': 'form-control'}),
             'prenom': forms.TextInput(attrs={'class': 'form-control'}),
             'numero_piece': forms.TextInput(attrs={'class': 'form-control'}),
@@ -72,14 +71,16 @@ class TransactionRegistrationForm(forms.ModelForm):
             'type': forms.Select(attrs={'class': 'form-control'}),
         }
 
-
-    def save(self, commit=True, agent=None):
+    def save(self, commit=True, agent=None, provider=None):
         instance = super().save(commit=False)
         if agent:
             instance.agent = agent
+        if provider:
+            instance.provider = provider
         if commit:
             instance.save()
         return instance
+
 # providers/forms.py
 from django import forms
 from providers.models import ServiceProvider

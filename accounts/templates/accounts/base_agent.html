@@ -1,31 +1,176 @@
-{% extends 'accounts/base.html' %}
+
 {% load static %}
 
-{# Agent Sidebar #}
-<nav id="agent-sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-    <div class="position-sticky pt-3">
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="{% url 'accounts:agent_dashboard' %}">
-                    <i class="fas fa-home"></i> Dashboard
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'accounts:transaction_register' %}">
-                    <i class="fas fa-plus-circle"></i> Register Transaction
-                </a>
-            </li>
-            {# Add more sidebar links as needed #}
-        </ul>
-    </div>
-</nav>
+<link rel="stylesheet" href="https://bootswatch.com/5/lux/bootstrap.min.css">
+   
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-{# Main Content Area #}
-<div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Agent Dashboard</h1>
-    </div>
+{% block content %}
+<style>
+    /* General Layout */
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        display: flex;
+    }
 
-    {# Agent Dashboard Content Goes Here #}
-    {% block agent_content %}{% endblock %}
+    /* Sidebar Styling */
+    .sidebar {
+        width: 250px;
+        transition: width 0.3s;
+        background-color: #343a40;
+        border-right: 1px solid #dee2e6;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        z-index: 100;
+    }
+    .sidebar.collapsed {
+        width: 70px;
+    }
+
+    .sidebar .nav-link {
+        padding: 0.75rem 1rem;
+        color: #fff;
+        transition: padding 0.3s;
+    }
+
+    .sidebar .nav-link i {
+        margin-right: 0.5rem;
+        font-size: 1.2rem;
+        color: #f8f9fa;
+    }
+
+    .sidebar.collapsed .nav-link span {
+        display: none;
+    }
+
+    .sidebar.collapsed .nav-link {
+        padding: 0.75rem 0.5rem;
+        text-align: center;
+    }
+
+    .nav-link.active {
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+        border-radius: 0.25rem;
+    }
+
+    .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Sidebar Footer */
+    .sidebar .sidebar-footer {
+        padding: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: auto;
+    }
+
+    .sidebar .sidebar-footer .nav-link {
+        color: #fff;
+    }
+
+    .sidebar .sidebar-footer .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Main Content */
+    main {
+        padding: 10px;
+        flex-grow: 1;
+        margin-left: 20px !important; 
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            width: 70px;
+        }
+        main {
+            margin-left: 40px;
+        }
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row flex-nowrap">
+        {# Sidebar for Agents #}
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar sidebar-sticky">
+            <div class="position-sticky pt-3 d-flex flex-column h-100">
+                <div class="logo-container text-center py-3">
+                    {% if agent.profile_picture %}
+                    <img src="{{ agent.profile_picture.url }}" alt="{{ agent.name }} Profile"
+                        class="img-fluid rounded-circle mb-3" width="100">
+                    {% else %}
+                    <i class="fas fa-user-circle fa-3x text-white"></i>
+                    {% endif %}
+                    <h5 class="text-white">{{ agent.name }}</h5>
+                </div>
+
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab == 'dashboard' %}active{% endif %}"
+                            href="{% url 'accounts:agent_dashboard' %}">
+                            <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab == 'transaction_register' %}active{% endif %}"
+                            href="{% url 'accounts:transaction_register' %}">
+                            <i class="fas fa-money-check-alt"></i> <span>Register Transaction</span>
+                        </a>
+                    </li>
+              
+                </ul>
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Service Providers</span>
+                </h6>
+                <ul class="nav flex-column provider-list">
+                    {% for provider in service_providers %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'providers:service_provider_detail' agency_pk=agency.pk provider_pk=provider.pk %}">
+                            {{ provider.name }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {# Footer Links #}
+                <div class="sidebar-footer">
+                    <ul class="nav flex-column">
+                      
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:logout' %}">
+                                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        {# Main Content Area #}
+        <main class="">
+            {% block main_content %}{% endblock %}
+        </main>
+    </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function () {
+                sidebar.classList.toggle('collapsed');
+            });
+        }
+    });
+</script>
+{% endblock %}

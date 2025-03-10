@@ -371,7 +371,7 @@ def agent_dashboard(request):
     agent = request.user.agent  # Assuming you have a one-to-one relationship
     return render(request, 'accounts/agent_dashboard.html', {'agent': agent})
 
-@login_required
+'''@login_required
 @transaction.atomic
 def transaction_register(request):
     agent = request.user.agent
@@ -412,3 +412,67 @@ def transaction_register(request):
 
     transactions = Transaction.objects.filter(agent=agent).order_by('-date_heure')[:10]
     return render(request, 'accounts/transaction_register.html', {'form': form, 'transactions': transactions})
+'''
+
+@login_required
+@transaction.atomic
+def transaction_register(request):
+    agent = request.user.agent
+    selected_provider = None
+    transactions = None
+    provider_list = ServiceProvider.objects.filter(agency=agent.agency)
+
+    # Get selected provider from GET parameter
+    provider_id = request.GET.get('provider')
+    if provider_id:
+        selected_provider = get_object_or_404(ServiceProvider, id=provider_id, agency=agent.agency)
+        transactions = Transaction.objects.filter(provider=selected_provider).order_by('-date_heure')
+
+    if request.method == 'POST':
+        form = TransactionRegistrationForm(request.POST)
+        if form.is_valid():
+            transaction = form.save(commit=False)
+            transaction.agent = agent
+            transaction.provider = selected_provider  # Use the selected provider
+
+            # Existing balance check logic
+            if transaction.type == 'withdrawal' and selected_provider.balance < transaction.montant:
+                messages.error(request, f'Solde insuffisant chez {selected_provider.name} pour effectuer ce retrait.')
+                # Notification logic
+                return render(request, 'accounts/transaction_register.html', {
+                    'form': form,
+                    'provider_list': provider_list,
+                    'selected_provider': selected_provider,
+                    'transactions': transactions
+                })
+
+            transaction.save()
+
+            # Update provider balance
+            if transaction.type == 'deposit':
+                selected_provider.balance += transaction.montant
+            elif transaction.type == 'withdrawal':
+                selected_provider.balance -= transaction.montant
+            selected_provider.save()
+
+            # Refresh transactions QuerySet
+            transactions = Transaction.objects.filter(provider=selected_provider).order_by('-date_heure')
+
+            return render(request, 'accounts/transaction_register.html', {
+                'form': TransactionRegistrationForm(),  # Reset form
+                'provider_list': provider_list,
+                'selected_provider': selected_provider,
+                'transactions': transactions
+            })
+        else:
+            print(form.errors)
+    else:
+        form = TransactionRegistrationForm()
+
+    return render(request, 'accounts/transaction_register.html', {
+        'form': form,
+        'provider_list': provider_list,
+        'selected_provider': selected_provider,
+        'transactions': transactions
+    })
+
