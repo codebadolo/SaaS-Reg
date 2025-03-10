@@ -364,12 +364,71 @@ def agent_login(request):
         form = AgentLoginForm()
     return render(request, 'accounts/agent_login.html', {'form': form})
 
+from django.db.models import Sum, Count
+from django.db.models.functions import TruncMonth, TruncWeek
 
 @login_required
 def agent_dashboard(request):
-    # Retrieve agent-specific information here
-    agent = request.user.agent  # Assuming you have a one-to-one relationship
-    return render(request, 'accounts/agent_dashboard.html', {'agent': agent})
+    agent = request.user.agent
+    transactions = Transaction.objects.filter(agent=agent)
+
+    # Existing statistics
+    total_deposits = transactions.filter(type='deposit').aggregate(total=Sum('montant'))['total']
+    total_withdrawals = transactions.filter(type='withdrawal').aggregate(total=Sum('montant'))['total']
+    net_balance = total_deposits - total_withdrawals
+
+    # Additional statistics
+    deposits_count = transactions.filter(type='deposit').count()
+    withdrawals_count = transactions.filter(type='withdrawal').count()
+
+    # Monthly transaction volume
+    monthly_volume = transactions.annotate(month=TruncMonth('date_heure')).values('month').annotate(total=Sum('montant')).order_by('month')
+
+    # Weekly transaction volume
+    weekly_volume = transactions.annotate(week=TruncWeek('date_heure')).values('week').annotate(total=Sum('montant')).order_by('week')
+
+    # Provider performance
+    provider_stats = transactions.values('provider__name').annotate(total=Sum('montant')).order_by('total')
+
+    context = {
+        'agent': agent,
+        'total_deposits': total_deposits,
+        'total_withdrawals': total_withdrawals,
+        'net_balance': net_balance,
+        'deposits_count': deposits_count,
+        'withdraws_count': withdrawals_count,
+        'monthly_volume': monthly_volume,
+        'weekly_volume': weekly_volume,
+        'provider_stats': provider_stats,
+    }
+
+    return render(request, 'accounts/agent_dashboard.html', context)
+
+from django.core.paginator import Paginator
+from .filters import TransactionFilter
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def transaction_list(request):
+    # Get transactions for the current agency
+    agency = request.user.agent.agency
+    queryset = Transaction.objects.filter(provider__agency=agency).select_related('provider', 'agent')
+
+    # Apply filters
+    transaction_filter = TransactionFilter(request.GET, queryset=queryset)
+    filtered_qs = transaction_filter.qs
+
+    # Pagination
+    paginator = Paginator(filtered_qs, 25)  # Show 25 transactions per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'filter': transaction_filter,
+        'page_obj': page_obj,
+    }
+    return render(request, 'accounts/transaction_list.html', context)
+
 
 '''@login_required
 @transaction.atomic

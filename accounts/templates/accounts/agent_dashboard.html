@@ -1,23 +1,178 @@
-{# accounts/templates/accounts/agent_dashboard.html #}
 {% extends 'accounts/base_agent.html' %}
 {% load static %}
 
 {% block main_content %}
-<div class="">
+<div class="container-fluid">
     <div class="row">
-
-    
-
-        {# Main Content #}
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">Agent Dashboard</h1>
+                <h1 class="h2">Tableau de Bord</h1>
             </div>
 
-            <h2>Welcome, {{ agent.username }}!</h2>
-            {# Display other agent-specific information here #}
+            {# Statistics Cards #}
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card bg-success text-white shadow">
+                        <div class="card-body">
+                            <h5 class="card-title">Dépôts Totals</h5>
+                            <h2 class="card-text">{{ total_deposits }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card bg-danger text-white shadow">
+                        <div class="card-body">
+                            <h5 class="card-title">Retraits Totals</h5>
+                            <h2 class="card-text">{{ total_withdrawals }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card bg-primary text-white shadow">
+                        <div class="card-body">
+                            <h5 class="card-title">Solde Net</h5>
+                            <h2 class="card-text">{{ net_balance }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Additional Statistics #}
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Transactions par Type</h5>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Dépôts
+                                    <span class="badge bg-primary rounded-pill">{{ deposits_count }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Retraits
+                                    <span class="badge bg-danger rounded-pill">{{ withdrawals_count }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Performances des Fournisseurs</h5>
+                            <ul class="list-group">
+                                {% for entry in provider_stats %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ entry.provider__name }}
+                                    <span class="badge bg-success rounded-pill">{{ entry.total }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Charts #}
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Volume Mensuel</h5>
+                            <canvas id="monthlyVolumeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Volume Hebdomadaire</h5>
+                            <canvas id="weeklyVolumeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </main>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const monthlyCtx = document.getElementById('monthlyVolumeChart').getContext('2d');
+    const monthlyChart = new Chart(monthlyCtx, {
+        type: 'bar',
+        data: {
+            labels: [
+                {% for entry in monthly_volume %}
+                '{{ entry.month|date:"M Y" }}',
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Volume Mensuel',
+                data: [
+                    {% for entry in monthly_volume %}
+                    {{ entry.total }},
+                    {% endfor %}
+                ],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    const weeklyCtx = document.getElementById('weeklyVolumeChart').getContext('2d');
+    const weeklyChart = new Chart(weeklyCtx, {
+        type: 'line',
+        data: {
+            labels: [
+                {% for entry in weekly_volume %}
+                '{{ entry.week|date:"W Y" }}',
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Volume Hebdomadaire',
+                data: [
+                    {% for entry in weekly_volume %}
+                    {{ entry.total }},
+                    {% endfor %}
+                ],
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
 {% endblock %}

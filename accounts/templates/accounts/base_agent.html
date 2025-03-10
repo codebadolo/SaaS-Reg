@@ -104,12 +104,7 @@
         <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar sidebar-sticky">
             <div class="position-sticky pt-3 d-flex flex-column h-100">
                 <div class="logo-container text-center py-3">
-                    {% if agent.profile_picture %}
-                    <img src="{{ agent.profile_picture.url }}" alt="{{ agent.name }} Profile"
-                        class="img-fluid rounded-circle mb-3" width="100">
-                    {% else %}
-                    <i class="fas fa-user-circle fa-3x text-white"></i>
-                    {% endif %}
+                    <img src="{{ agency.logo.url }}" alt="Agency Logo" class="img-fluid float-end" style="max-width: 100px;">
                     <h5 class="text-white">{{ agent.name }}</h5>
                 </div>
 
@@ -118,6 +113,13 @@
                         <a class="nav-link {% if active_tab == 'dashboard' %}active{% endif %}"
                             href="{% url 'accounts:agent_dashboard' %}">
                             <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab == 'transaction_list' %}active{% endif %}"
+                            href="{% url 'accounts:transaction_list' %}">
+                            <i class="fas fa-money-check-alt"></i> <span> Transaction</span>
                         </a>
                     </li>
                     <li class="nav-item">

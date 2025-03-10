@@ -2,12 +2,13 @@ from django.db import models
 from accounts.models import Agent
 from providers.models import ServiceProvider
 
-TRANSACTION_TYPES = (
+
+
+class Transaction(models.Model):
+    TRANSACTION_TYPES = (
     ('deposit', 'Deposit'),
     ('withdrawal', 'Withdrawal'),
 )
-
-class Transaction(models.Model):
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='transactions')
     provider = models.ForeignKey(ServiceProvider, on_delete=models.CASCADE, related_name='transactions')
     nom = models.CharField(max_length=200)
