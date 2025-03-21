@@ -213,7 +213,7 @@ def agency_detail(request, pk):
 @login_required
 def logout_view(request):
     logout(request)
-    return redirect('home')  # Redirect to your home page or login page
+    return redirect('accounts:home')  # Redirect to your home page or login page
 
 @login_required
 def agent_list(request, pk):
